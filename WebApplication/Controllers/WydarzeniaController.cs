@@ -48,4 +48,45 @@ public class WydarzeniaController(IDbService dbService) : ControllerBase
         }
     }
 
+    [HttpPut("{wydarzenieId}")]
+    public async Task<IActionResult> AddPrelegentsWydarzenieAsync(
+        [FromRoute] int wydarzenieId, [FromBody] List<int> prelegentIds)
+    {
+        try
+        {
+            await dbService.AddPrelegentsWydarzenieAsync(wydarzenieId, prelegentIds);
+            return Ok();
+        }
+        catch (BadDateException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+    }
+    
+    [HttpPut("{wydarzenieId}/{uczestnikId}")]
+    public async Task<IActionResult> AddUczestnikWydarzenieAsync([FromRoute] int uczestnikId, int wydarzenieId)
+    {
+        try
+        {
+            await dbService.AddUczestnikWydarzenieAsync(uczestnikId, wydarzenieId);
+            return Ok();
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (FullEventException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (AlreadyRegisteredException e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
 }

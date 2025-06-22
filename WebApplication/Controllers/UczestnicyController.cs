@@ -31,5 +31,27 @@ public class UczestnicyController(IDbService dbService) : ControllerBase
             return BadRequest(e.Message);
         }
     }
-    
+
+    [HttpPut("{uczestnikId}/{wydarzenieId}")]
+    public async Task<IActionResult> AddUczestnikWydarzenieAsync([FromRoute] int uczestnikId, int wydarzenieId)
+    {
+        try
+        {
+            await dbService.AddUczestnikWydarzenieAsync(uczestnikId, wydarzenieId);
+            return Ok();
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (FullEventException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (AlreadyRegisteredException e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
 }
