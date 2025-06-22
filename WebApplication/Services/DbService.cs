@@ -104,6 +104,8 @@ public class DbService(AppDbContext data) : IDbService
         foreach (int id in prelegentIds)
         {
             var prelegent = await data.Prelegent
+                .Include(p => p.PrelegentWydarzenie)
+                .ThenInclude(p => p.Wydarzenie)
                 .FirstOrDefaultAsync(p => p.Id == id);
             if (prelegent == null)
             {
@@ -132,6 +134,7 @@ public class DbService(AppDbContext data) : IDbService
     public async Task AddUczestnikWydarzenieAsync(int uczestnikId, int wydarzenieId)
     {
         var wydarzenie = await data.Wydarzenie
+            .Include(w => w.UczestnikWydarzenie)
             .FirstOrDefaultAsync(w => w.Id == wydarzenieId);
         if (wydarzenie == null)
         {
@@ -142,14 +145,14 @@ public class DbService(AppDbContext data) : IDbService
         {
             throw new FullEventException("Brak dostępnych miejsc na wydarzenie");
         }
-        var uczestnik = data.Uczestnik
+        var uczestnik = await data.Uczestnik
             .FirstOrDefaultAsync(u => u.Id == uczestnikId);
         if (uczestnik == null)
         {
             throw new NotFoundException("Nie znaleziono uczestnika");
         }
         
-        var listaUczestnikWydarzenie = data
+        var listaUczestnikWydarzenie = await data
             .UczestnikWydarzenie
             .FirstOrDefaultAsync(uw => uw.Uczestnik.Id == uczestnikId && uw.WydarzenieId == wydarzenieId);
         if (listaUczestnikWydarzenie != null)
